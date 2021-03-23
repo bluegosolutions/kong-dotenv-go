@@ -2,6 +2,7 @@ package kongdotenv
 
 import (
 	"io"
+	"os"
 
 	"github.com/alecthomas/kong"
 	"github.com/joho/godotenv"
@@ -17,6 +18,12 @@ func ENVFile(r io.Reader) (kong.Resolver, error) {
 	}
 
 	var f kong.ResolverFunc = func(context *kong.Context, parent *kong.Path, flag *kong.Flag) (interface{}, error) {
+		if flag.Env == "" {
+			return nil, nil
+		} else if _, ok := os.LookupEnv(flag.Env); ok {
+			return nil, nil
+		}
+
 		raw, ok := values[flag.Env]
 		if !ok {
 			return nil, nil
