@@ -58,13 +58,31 @@ STRING_2=$STRING
 	require.True(t, cli.Bool)
 }
 
-func TestPrioritizeEnvOverEnv(t *testing.T) {
+func TestPrioritizeEnvVarOverEnvFile(t *testing.T) {
 	defer os.Clearenv()
 
 	require.NoError(t, os.Setenv("STRING", "pizza"))
 
 	var cli struct {
 		String string `env:"STRING"`
+	}
+
+	envFile := `STRING=🍕`
+
+	r, err := kong_dotenv.ENVFile(strings.NewReader(envFile))
+	require.NoError(t, err)
+
+	parser := mustNew(t, &cli, kong.Resolvers(r))
+	_, err = parser.Parse([]string{})
+	require.NoError(t, err)
+	require.Equal(t, "pizza", cli.String)
+}
+
+func TestPrioritizeDefaultOverEnvFile(t *testing.T) {
+	require.NoError(t, os.Setenv("STRING", "pizza"))
+
+	var cli struct {
+		String string `kong:"env:STRING,default=pizza"`
 	}
 
 	envFile := `STRING=🍕`
