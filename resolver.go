@@ -17,6 +17,10 @@ func ENVFile(r io.Reader) (kong.Resolver, error) {
 	}
 
 	var f kong.ResolverFunc = func(context *kong.Context, parent *kong.Path, flag *kong.Flag) (interface{}, error) {
+		if flag.Value != nil || flag.Env == "" {
+			return nil, nil
+		}
+
 		raw, ok := values[flag.Env]
 		if !ok {
 			return nil, nil
