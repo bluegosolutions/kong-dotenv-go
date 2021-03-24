@@ -6,8 +6,9 @@ import (
 	"testing"
 
 	"github.com/alecthomas/kong"
-	kong_dotenv "github.com/bluegosolutions/kong-dotenv-go"
 	"github.com/stretchr/testify/require"
+
+	kong_dotenv "github.com/bluegosolutions/kong-dotenv-go"
 )
 
 func TestParseENVFileBasic(t *testing.T) {
@@ -64,7 +65,7 @@ func TestPrioritizeEnvVarOverEnvFile(t *testing.T) {
 	require.NoError(t, os.Setenv("STRING", "pizza"))
 
 	var cli struct {
-		String string `env:"STRING"`
+		String string `kong:"env=STRING"`
 	}
 
 	envFile := `STRING=🍕`
@@ -79,10 +80,12 @@ func TestPrioritizeEnvVarOverEnvFile(t *testing.T) {
 }
 
 func TestPrioritizeDefaultOverEnvFile(t *testing.T) {
+	defer os.Clearenv()
+
 	require.NoError(t, os.Setenv("STRING", "pizza"))
 
 	var cli struct {
-		String string `kong:"env:STRING,default=pizza"`
+		String string `kong:"env=STRING,default='pepperoni'"`
 	}
 
 	envFile := `STRING=🍕`

@@ -2,6 +2,7 @@ package kongdotenv
 
 import (
 	"io"
+	"os"
 
 	"github.com/alecthomas/kong"
 	"github.com/joho/godotenv"
@@ -17,7 +18,9 @@ func ENVFile(r io.Reader) (kong.Resolver, error) {
 	}
 
 	var f kong.ResolverFunc = func(context *kong.Context, parent *kong.Path, flag *kong.Flag) (interface{}, error) {
-		if flag.Value != nil || flag.Env == "" {
+		// Skip, if flag doesn't have an environment variable.
+		// Skip, if environment variable is already set.
+		if flag.Env == "" || os.Getenv(flag.Env) != "" {
 			return nil, nil
 		}
 
